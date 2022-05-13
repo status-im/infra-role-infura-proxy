@@ -1,0 +1,7 @@
+---
+- include_tasks: certbot.yml
+- include_tasks: create.yml
+- include_tasks: renewal.yml
+- include_tasks: proxy.yml
+- include_tasks: firewall.yml
+- include_tasks: consul.yml

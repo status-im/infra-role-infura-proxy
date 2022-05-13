@@ -1,0 +1,17 @@
+---
+- name: Create Consul service definition
+  include_role: name=consul-service
+  vars:
+    consul_config_name: 'infura-proxy'
+    consul_services:
+      - name: 'infura-proxy'
+        tags: ['infura', 'proxy']
+        port: '443'
+        checks:
+          - id: 'infura-proxy-status'
+            name: Infura Proxy Healthcheck
+            type: http
+            http: 'https://localhost:443/'
+            tls_skip_verify: true
+            header:
+              Host: ['ciqne5onq6dbtaqlamhh6yi3bv36o7olkaaucygae5gmdd4boxceyja.infura.status.im']

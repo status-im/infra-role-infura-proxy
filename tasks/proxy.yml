@@ -1,0 +1,28 @@
+---
+- name: Install Lua Nginx module
+  apt:
+    name: libnginx-mod-http-lua
+
+- name: Copy Lua script for decoding hashes
+  copy:
+    src: files/b32tob38.lua
+    dest: /etc/nginx/b32tob58.lua
+    mode: 0755
+  notify:
+    - reload nginx
+
+- name: Copy over redirect config
+  template:
+    src: infura-proxy.conf.j2
+    dest: /etc/nginx/sites-available/infura-proxy.conf
+    mode: 0644
+  notify:
+    - reload nginx
+
+- name: Symlink cn.status.im nginx config
+  file:
+    src: /etc/nginx/sites-available/infura-proxy.conf
+    dest: /etc/nginx/sites-enabled/infura-proxy.conf
+    state: link
+  notify:
+    - reload nginx

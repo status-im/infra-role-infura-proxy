@@ -1,0 +1,34 @@
+---
+# Mandatory to create required TXT records
+#certbot_cloudflare_api_token: ~
+# Mandatory Domain name
+certbot_domain: ~
+certbot_domain_no_wildcard: '{{ certbot_domain | regex_replace("^\*\.(.*)$", "\1") }}'
+
+# paths
+certbot_public_cert: '/etc/letsencrypt/live/{{ certbot_domain_no_wildcard }}/fullchain.pem'
+certbot_private_key: '/etc/letsencrypt/live/{{ certbot_domain_no_wildcard }}/privkey.pem'
+
+# Certbot auto-renew cron job configuration (for certificate renewals).
+certbot_auto_renew_timer_name: 'certbot-renew'
+certbot_auto_renew_timer_user: 'root'
+certbot_auto_renew_timer_frequency: 'daily'
+certbot_auto_renew_timer_timeout: 120
+
+certbot_create_if_missing: false
+certbot_create_method: standalone
+certbot_admin_email: jakub@status.im
+
+# newest version of certbot necessary for wildcard support
+certbot_ppa_repo: 'ppa:certbot/certbot'
+certbot_pip_packages:
+  - certbot
+  - certbot-dns-cloudflare
+
+certbot_create_command: >-
+  certbot certonly
+  --agree-tos
+  --dns-cloudflare
+  --noninteractive
+  --email={{ certbot_admin_email }}
+  -d {{ certbot_domain | mandatory }}

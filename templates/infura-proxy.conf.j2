@@ -1,0 +1,23 @@
+server {
+    listen 80;
+    listen 443 ssl;
+
+    # This regex allows us to detect which sub domain was used
+    server_name ~^(?<domain_hash>\w+).infura.status.im;
+
+    # LetSencrypt SSL certs 
+    ssl_certificate     {{ certbot_public_cert }};
+    ssl_certificate_key {{ certbot_private_key }};
+
+    location / {
+        # Rewrite to proxy to Infura IPFS by converting
+        # base32 hash to a base58 hash for /ipfs/ path
+        rewrite_by_lua_file /etc/nginx/b32tob58.lua;
+        # proxy the request to Infura
+        proxy_pass https://cloudflare-ipfs.com;
+        proxy_redirect off;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_cache_bypass $http_upgrade;
+
+    }
+}

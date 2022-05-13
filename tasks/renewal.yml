@@ -1,0 +1,12 @@
+---
+- name: Create timer for Certbot renewal
+  include_role: name=systemd-timer
+  vars:
+    systemd_timer_description: 'Certbot automatic certificate renewal.'
+    systemd_timer_name: '{{ certbot_auto_renew_timer_name }}'
+    systemd_timer_user: '{{ certbot_auto_renew_timer_user }}'
+    systemd_timer_frequency: '{{ certbot_auto_renew_timer_frequency }}'
+    systemd_timer_timeout_sec: '{{ certbot_auto_renew_timer_timeout }}'
+    systemd_timer_start_on_creation: false
+    systemd_timer_script_path: '/usr/local/bin/certbot'
+    systemd_timer_script_args: 'renew'

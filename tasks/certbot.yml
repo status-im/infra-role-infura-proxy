@@ -1,0 +1,37 @@
+---
+- name: Ensure certbot-auto is executable.
+  pip:
+    name: '{{ certbot_pip_packages }}'
+
+- name: Check if certbot-dns-cloudflare plugin is installed
+  shell: 'certbot plugins | grep dns-cloudflare'
+  register: cf_check
+  ignore_errors: true
+  changed_when: 'cf_check is failed'
+
+- name: Create certbot folder
+  file:
+    path: '/etc/letsencrypt'
+    state: directory
+    owner: root
+    group: root
+    mode: 0700
+
+- name: Certbot configuration files
+  template:
+    src: '{{ item.src }}'
+    dest: '{{ item.dest }}'
+    owner: root
+    group: root
+    mode: 0600
+  with_items:
+    - { src: 'templates/confcloudflare.ini.j2',  dest: '/etc/letsencrypt/dnscloudflare.ini' }
+    - { src: 'templates/letsencrypt_cli.ini.j2', dest: '/etc/letsencrypt/cli.ini' }
+
+- name: Auto-reload Nginx on cert changes
+  copy:
+    dest: /etc/letsencrypt/renewal-hooks/deploy/01-reload-nginx
+    mode: 0750
+    content: |
+      #!/usr/bin/env bash
+      systemctl reload nginx
